@@ -8,6 +8,7 @@ import { AddRecipeSheet } from "@/components/recipes/add-recipe-sheet";
 import { DeleteRecipeButton } from "@/components/recipes/delete-recipe-button";
 import { FavoriteRecipeButton } from "@/components/recipes/favorite-recipe-button";
 import { RecipeRating } from "@/components/recipes/recipe-rating";
+import { RecipeTagFilter } from "@/components/recipes/recipe-tag-filter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { RecipeListItem } from "@/lib/types/recipe";
@@ -20,6 +21,7 @@ interface RecipesLibraryProps {
 export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
   const [query, setQuery] = useState("");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false);
   const [favoriteByRecipeId, setFavoriteByRecipeId] = useState<
     Record<string, boolean>
@@ -40,12 +42,43 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
     [favoriteByRecipeId, recipes],
   );
 
+  const availableTags = useMemo(() => {
+    const tagMap = new Map<string, string>();
+
+    for (const recipe of recipes) {
+      for (const tag of recipe.tags) {
+        const key = tag.toLowerCase();
+
+        if (!tagMap.has(key)) {
+          tagMap.set(key, tag);
+        }
+      }
+    }
+
+    return Array.from(tagMap.values()).sort((left, right) =>
+      left.localeCompare(right),
+    );
+  }, [recipes]);
+
   const filteredRecipes = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
     return recipesWithFavorites.filter((recipe) => {
       if (favoritesOnly && !recipe.isFavorite) {
         return false;
+      }
+
+      if (selectedTags.length > 0) {
+        const recipeTagKeys = new Set(
+          recipe.tags.map((tag) => tag.toLowerCase()),
+        );
+        const matchesAllSelectedTags = selectedTags.every((tag) =>
+          recipeTagKeys.has(tag.toLowerCase()),
+        );
+
+        if (!matchesAllSelectedTags) {
+          return false;
+        }
       }
 
       if (!normalizedQuery) {
@@ -57,7 +90,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
         recipe.description?.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [favoritesOnly, query, recipesWithFavorites]);
+  }, [favoritesOnly, query, recipesWithFavorites, selectedTags]);
 
   return (
     <>
@@ -102,6 +135,12 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
               className="h-11 rounded-2xl bg-background/80 pr-4 pl-11 text-base"
             />
           </div>
+
+          <RecipeTagFilter
+            availableTags={availableTags}
+            selectedTags={selectedTags}
+            onSelectedTagsChange={setSelectedTags}
+          />
 
           <Button
             type="button"
@@ -176,7 +215,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
           <p className="rounded-3xl border border-dashed border-border/80 bg-card/80 px-4 py-5 text-sm leading-6 text-muted-foreground">
             {recipes.length === 0
               ? "No recipes saved yet. Tap the plus button to add your first recipe."
-              : "No recipes match your search or favorites filter."}
+              : "No recipes match your search, tags, or favorites filter."}
           </p>
         )}
       </div>

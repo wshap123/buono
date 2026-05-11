@@ -4,8 +4,10 @@ import { ArrowLeft } from "lucide-react";
 
 import { RecipeDetailHeader } from "@/components/recipes/recipe-detail-header";
 import { RecipeNotesSection } from "@/components/recipes/recipe-notes-section";
+import { RecipeTagsSection } from "@/components/recipes/recipe-tags-section";
 import { getRecipeMadeLog } from "@/lib/recipes/get-recipe-made-log";
 import { getRecipeNote } from "@/lib/recipes/get-recipe-note";
+import { asRecipeTags } from "@/lib/recipes/normalize-recipe-tags";
 import { createClient } from "@/lib/supabase/server";
 
 interface RecipePageProps {
@@ -28,7 +30,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
   const { data: recipe, error } = await supabase
     .from("recipes")
     .select(
-      "id, title, description, cook_time, prep_time, servings, ingredients, instructions, is_favorite, rating",
+      "id, title, description, cook_time, prep_time, servings, ingredients, instructions, is_favorite, rating, tags",
     )
     .eq("id", id)
     .maybeSingle();
@@ -44,6 +46,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
   const cookTimeMinutes = (recipe.prep_time ?? 0) + (recipe.cook_time ?? 0);
   const ingredients = asStringArray(recipe.ingredients);
   const instructions = asStringArray(recipe.instructions);
+  const tags = asRecipeTags(recipe.tags);
   const [recipeNote, madeLog] = await Promise.all([
     getRecipeNote(recipe.id),
     getRecipeMadeLog(recipe.id),
@@ -103,6 +106,8 @@ export default async function RecipePage({ params }: RecipePageProps) {
           </div>
         ) : null}
       </section>
+
+      <RecipeTagsSection recipeId={recipe.id} initialTags={tags} />
 
       <RecipeNotesSection
         recipeId={recipe.id}

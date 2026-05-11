@@ -1,3 +1,4 @@
+import { asRecipeTags } from "@/lib/recipes/normalize-recipe-tags";
 import { createClient } from "@/lib/supabase/client";
 import type { RecipeListItem } from "@/lib/types/recipe";
 
@@ -7,6 +8,7 @@ interface RecipeRow {
   description: string | null;
   is_favorite: boolean;
   rating: number | null;
+  tags: string[] | null;
   prep_time: number | null;
   cook_time: number | null;
 }
@@ -15,7 +17,7 @@ export async function fetchRecipesClient(): Promise<RecipeListItem[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("recipes")
-    .select("id, title, description, is_favorite, rating, prep_time, cook_time")
+    .select("id, title, description, is_favorite, rating, tags, prep_time, cook_time")
     .order("title", { ascending: true });
 
   if (error) {
@@ -28,6 +30,7 @@ export async function fetchRecipesClient(): Promise<RecipeListItem[]> {
     description: recipe.description,
     isFavorite: recipe.is_favorite,
     rating: recipe.rating,
+    tags: asRecipeTags(recipe.tags),
     cookTimeMinutes: (recipe.prep_time ?? 0) + (recipe.cook_time ?? 0),
   }));
 }
