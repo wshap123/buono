@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { RecipeDetailHeader } from "@/components/recipes/recipe-detail-header";
 import { RecipeNotesSection } from "@/components/recipes/recipe-notes-section";
+import { getRecipeMadeLog } from "@/lib/recipes/get-recipe-made-log";
 import { getRecipeNote } from "@/lib/recipes/get-recipe-note";
 import { createClient } from "@/lib/supabase/server";
 
@@ -43,7 +44,10 @@ export default async function RecipePage({ params }: RecipePageProps) {
   const cookTimeMinutes = (recipe.prep_time ?? 0) + (recipe.cook_time ?? 0);
   const ingredients = asStringArray(recipe.ingredients);
   const instructions = asStringArray(recipe.instructions);
-  const recipeNote = await getRecipeNote(recipe.id);
+  const [recipeNote, madeLog] = await Promise.all([
+    getRecipeNote(recipe.id),
+    getRecipeMadeLog(recipe.id),
+  ]);
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-4 pb-10 pt-6 sm:px-6">
       <Link
@@ -61,6 +65,8 @@ export default async function RecipePage({ params }: RecipePageProps) {
         cookTimeMinutes={cookTimeMinutes}
         servings={recipe.servings}
         isFavorite={recipe.is_favorite}
+        madeCount={madeLog.count}
+        lastMadeAt={madeLog.lastMadeAt}
       />
 
       <section className="space-y-5 rounded-3xl border border-border/70 bg-card/90 px-4 py-5 shadow-sm">
