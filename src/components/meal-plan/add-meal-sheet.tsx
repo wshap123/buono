@@ -29,15 +29,8 @@ import { formatDayHeading } from "@/lib/meal-plan/week";
 import { fileToBase64, importRecipe } from "@/lib/recipe-import/import-recipe";
 import { fetchRecipesClient } from "@/lib/recipes/fetch-recipes-client";
 import type { ImportedRecipe } from "@/lib/types/imported-recipe";
-import type { MealType } from "@/lib/types/meal-plan";
 import type { RecipeListItem } from "@/lib/types/recipe";
 import { cn } from "@/lib/utils";
-
-const mealLabels: Record<MealType, string> = {
-  breakfast: "Breakfast",
-  lunch: "Lunch",
-  dinner: "Dinner",
-};
 
 type AddMealStep =
   | "options"
@@ -76,7 +69,6 @@ interface AddMealSheetProps {
   onOpenChange: (open: boolean) => void;
   date: string;
   weekday: string;
-  mealType: MealType;
 }
 
 export function AddMealSheet({
@@ -84,10 +76,8 @@ export function AddMealSheet({
   onOpenChange,
   date,
   weekday,
-  mealType,
 }: AddMealSheetProps) {
   const router = useRouter();
-  const mealLabel = mealLabels[mealType];
   const [step, setStep] = useState<AddMealStep>("options");
   const [importSource, setImportSource] = useState<ImportSource>("paste-text");
   const [recipeText, setRecipeText] = useState("");
@@ -225,7 +215,6 @@ export function AddMealSheet({
       await assignRecipeToMeal({
         recipeId,
         date,
-        mealType,
       });
 
       onOpenChange(false);
@@ -255,7 +244,6 @@ export function AddMealSheet({
         recipe: importedRecipe,
         sourceUrl: null,
         date,
-        mealType,
       });
 
       onOpenChange(false);
@@ -291,7 +279,7 @@ export function AddMealSheet({
           ? "Import from photo"
           : step === "choose-library"
             ? "Choose from library"
-            : `Add ${mealLabel.toLowerCase()}`;
+            : "Add dinner";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

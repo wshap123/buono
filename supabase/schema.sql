@@ -30,7 +30,7 @@ create table public.meal_plan (
   recipe_id uuid references public.recipes (id) on delete set null,
   notes text,
   created_at timestamptz not null default timezone('utc', now()),
-  constraint meal_plan_meal_type_check check (meal_type in ('breakfast', 'lunch', 'dinner')),
+  constraint meal_plan_meal_type_check check (meal_type in ('dinner')),
   constraint meal_plan_date_meal_type_unique unique (date, meal_type)
 );
 

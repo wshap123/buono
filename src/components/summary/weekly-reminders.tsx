@@ -7,14 +7,7 @@ import { Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { dismissMealReminder } from "@/lib/meal-plan/dismiss-meal-reminder";
 import type { WeeklyReminder } from "@/lib/meal-plan/get-weekly-reminders";
-import type { MealType } from "@/lib/types/meal-plan";
 import { cn } from "@/lib/utils";
-
-const mealLabels: Record<MealType, string> = {
-  breakfast: "Breakfast",
-  lunch: "Lunch",
-  dinner: "Dinner",
-};
 
 interface WeeklyRemindersProps {
   reminders: WeeklyReminder[];
@@ -64,9 +57,7 @@ export function WeeklyReminders({ reminders }: WeeklyRemindersProps) {
             >
               <div className="min-w-0 flex-1 space-y-1">
                 <p className="text-sm text-foreground">{reminder.message}</p>
-                <p className="text-xs text-muted-foreground">
-                  {reminder.weekday} · {mealLabels[reminder.mealType]}
-                </p>
+                <p className="text-xs text-muted-foreground">{reminder.weekday}</p>
               </div>
               <Button
                 type="button"

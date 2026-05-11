@@ -1,22 +1,20 @@
 import { createClient } from "@/lib/supabase/client";
-import type { MealType } from "@/lib/types/meal-plan";
+import { DEFAULT_MEAL_TYPE } from "@/lib/meal-plan/week";
 
 interface AssignRecipeToMealInput {
   recipeId: string;
   date: string;
-  mealType: MealType;
 }
 
 export async function assignRecipeToMeal({
   recipeId,
   date,
-  mealType,
 }: AssignRecipeToMealInput) {
   const supabase = createClient();
   const { error } = await supabase.from("meal_plan").upsert(
     {
       date,
-      meal_type: mealType,
+      meal_type: DEFAULT_MEAL_TYPE,
       recipe_id: recipeId,
     },
     { onConflict: "date,meal_type" },

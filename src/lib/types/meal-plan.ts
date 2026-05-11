@@ -1,4 +1,4 @@
-export type MealType = "breakfast" | "lunch" | "dinner";
+export type MealType = "dinner";
 
 export interface Recipe {
   id: string;
@@ -7,7 +7,6 @@ export interface Recipe {
 }
 
 export interface MealSlot {
-  type: MealType;
   recipe: Recipe | null;
   mealPlanId: string | null;
 }
@@ -17,7 +16,7 @@ export interface DayPlan {
   weekday: string;
   dayOfMonth: number;
   isToday: boolean;
-  meals: MealSlot[];
+  dinner: MealSlot;
 }
 
 export interface WeeklyMealPlan {

@@ -15,7 +15,7 @@ export function DayPlanCard({ day }: DayPlanCardProps) {
       size="sm"
       className={cn(
         "rounded-3xl border-border/70 bg-card/90 shadow-sm backdrop-blur-sm",
-        day.isToday && "border-primary/30 ring-1 ring-primary/15"
+        day.isToday && "border-primary/30 ring-1 ring-primary/15",
       )}
     >
       <CardHeader className="pb-0">
@@ -35,15 +35,8 @@ export function DayPlanCard({ day }: DayPlanCardProps) {
           ) : null}
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 pt-4">
-        {day.meals.map((slot) => (
-          <MealSlot
-            key={`${day.date}-${slot.type}`}
-            slot={slot}
-            date={day.date}
-            weekday={day.weekday}
-          />
-        ))}
+      <CardContent className="pt-4">
+        <MealSlot slot={day.dinner} date={day.date} weekday={day.weekday} />
       </CardContent>
     </Card>
   );

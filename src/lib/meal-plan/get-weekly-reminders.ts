@@ -1,19 +1,15 @@
 import { getCurrentWeekDays, toDateKey } from "@/lib/meal-plan/week";
 import { createClient } from "@/lib/supabase/server";
-import type { MealType } from "@/lib/types/meal-plan";
-
 export interface WeeklyReminder {
   id: string;
   message: string;
   date: string;
   weekday: string;
-  mealType: MealType;
 }
 
 interface MealPlanRow {
   id: string;
   date: string;
-  meal_type: MealType;
 }
 
 interface ReminderRow {
@@ -36,6 +32,7 @@ export async function getWeeklyReminders(): Promise<WeeklyReminder[]> {
   const { data: mealPlans, error: mealPlanError } = await supabase
     .from("meal_plan")
     .select("id, date, meal_type")
+    .eq("meal_type", "dinner")
     .gte("date", weekStart)
     .lte("date", weekEnd);
 
@@ -79,7 +76,6 @@ export async function getWeeklyReminders(): Promise<WeeklyReminder[]> {
         message: reminder.message,
         date: mealPlan.date,
         weekday: weekdayByDate.get(mealPlan.date) ?? mealPlan.date,
-        mealType: mealPlan.meal_type,
       };
     })
     .filter((reminder): reminder is WeeklyReminder => reminder !== null)

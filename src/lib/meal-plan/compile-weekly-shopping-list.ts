@@ -98,6 +98,7 @@ export async function getWeeklyShoppingList() {
         )
       `,
     )
+    .eq("meal_type", "dinner")
     .gte("date", weekStart)
     .lte("date", weekEnd)
     .not("recipe_id", "is", null);

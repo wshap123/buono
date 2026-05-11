@@ -1,11 +1,10 @@
 import {
   formatWeekRange,
   getCurrentWeekDays,
-  mealTypes,
   toDateKey,
 } from "@/lib/meal-plan/week";
 import { createClient } from "@/lib/supabase/server";
-import type { MealType, WeeklyMealPlan } from "@/lib/types/meal-plan";
+import type { WeeklyMealPlan } from "@/lib/types/meal-plan";
 
 interface MealPlanRecipeRow {
   id: string;
@@ -17,7 +16,6 @@ interface MealPlanRecipeRow {
 interface MealPlanRow {
   id: string;
   date: string;
-  meal_type: MealType;
   recipe: MealPlanRecipeRow | MealPlanRecipeRow[] | null;
 }
 
@@ -49,7 +47,6 @@ export async function getWeeklyMealPlan(): Promise<WeeklyMealPlan> {
       `
         id,
         date,
-        meal_type,
         recipe:recipes (
           id,
           title,
@@ -58,43 +55,28 @@ export async function getWeeklyMealPlan(): Promise<WeeklyMealPlan> {
         )
       `,
     )
+    .eq("meal_type", "dinner")
     .gte("date", weekStart)
     .lte("date", weekEnd)
-    .order("date", { ascending: true })
-    .order("meal_type", { ascending: true });
+    .order("date", { ascending: true });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  const mealsByDate = new Map<
+  const dinnerByDate = new Map<
     string,
-    Map<
-      MealType,
-      {
-        mealPlanId: string;
-        recipe: MealPlanRecipeRow | null;
-      }
-    >
+    {
+      mealPlanId: string;
+      recipe: MealPlanRecipeRow | null;
+    }
   >();
 
   for (const row of (data ?? []) as MealPlanRow[]) {
-    const recipe = getRecipeFromRow(row.recipe);
-    const mealsForDate =
-      mealsByDate.get(row.date) ??
-      new Map<
-        MealType,
-        {
-          mealPlanId: string;
-          recipe: MealPlanRecipeRow | null;
-        }
-      >();
-
-    mealsForDate.set(row.meal_type, {
+    dinnerByDate.set(row.date, {
       mealPlanId: row.id,
-      recipe,
+      recipe: getRecipeFromRow(row.recipe),
     });
-    mealsByDate.set(row.date, mealsForDate);
   }
 
   return {
@@ -102,29 +84,24 @@ export async function getWeeklyMealPlan(): Promise<WeeklyMealPlan> {
     weekRange: formatWeekRange(weekDays),
     days: weekDays.map((date) => {
       const dateKey = toDateKey(date);
-      const mealsForDate = mealsByDate.get(dateKey);
+      const dinner = dinnerByDate.get(dateKey) ?? null;
+      const recipe = dinner?.recipe ?? null;
 
       return {
         date: dateKey,
         weekday: weekdayFormatter.format(date),
         dayOfMonth: date.getDate(),
         isToday: dateKey === todayKey,
-        meals: mealTypes.map((type) => {
-          const meal = mealsForDate?.get(type) ?? null;
-          const recipe = meal?.recipe ?? null;
-
-          return {
-            type,
-            mealPlanId: meal?.mealPlanId ?? null,
-            recipe: recipe
-              ? {
-                  id: recipe.id,
-                  name: recipe.title,
-                  cookTimeMinutes: getCookTimeMinutes(recipe),
-                }
-              : null,
-          };
-        }),
+        dinner: {
+          mealPlanId: dinner?.mealPlanId ?? null,
+          recipe: recipe
+            ? {
+                id: recipe.id,
+                name: recipe.title,
+                cookTimeMinutes: getCookTimeMinutes(recipe),
+              }
+            : null,
+        },
       };
     }),
   };

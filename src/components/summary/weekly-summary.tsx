@@ -15,12 +15,7 @@ export async function WeeklySummary() {
       getWeeklyReminders(),
     ]);
   const checkedByItemKey = await getShoppingListChecks(weekStart);
-  const plannedDays = days
-    .map((day) => ({
-      ...day,
-      meals: day.meals.filter((meal) => meal.recipe),
-    }))
-    .filter((day) => day.meals.length > 0);
+  const plannedDays = days.filter((day) => day.dinner.recipe);
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-4 pt-6 pb-10 sm:px-6">
@@ -53,18 +48,12 @@ export async function WeeklySummary() {
                 <h3 className="text-sm font-semibold tracking-tight text-foreground">
                   {day.weekday}
                 </h3>
-                <ul className="mt-2 space-y-1.5">
-                  {day.meals.map((meal) => (
-                    <li key={`${day.date}-${meal.type}`}>
-                      <Link
-                        href={`/recipes/${meal.recipe!.id}`}
-                        className="block rounded-2xl bg-background/80 px-3 py-2 text-sm text-foreground transition-colors hover:bg-primary/5"
-                      >
-                        {meal.recipe!.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <Link
+                  href={`/recipes/${day.dinner.recipe!.id}`}
+                  className="mt-2 block rounded-2xl bg-background/80 px-3 py-2 text-sm text-foreground transition-colors hover:bg-primary/5"
+                >
+                  {day.dinner.recipe!.name}
+                </Link>
               </article>
             ))}
           </div>

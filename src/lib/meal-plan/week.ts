@@ -1,6 +1,6 @@
 import type { MealType } from "@/lib/types/meal-plan";
 
-export const mealTypes: MealType[] = ["breakfast", "lunch", "dinner"];
+export const DEFAULT_MEAL_TYPE: MealType = "dinner";
 
 export function toDateKey(date: Date) {
   const year = date.getFullYear();
