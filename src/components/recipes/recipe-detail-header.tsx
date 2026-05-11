@@ -5,6 +5,7 @@ import { Clock3, Users } from "lucide-react";
 import { DeleteRecipeButton } from "@/components/recipes/delete-recipe-button";
 import { FavoriteRecipeButton } from "@/components/recipes/favorite-recipe-button";
 import { RecipeMadeIt } from "@/components/recipes/recipe-made-it";
+import { RecipeRating } from "@/components/recipes/recipe-rating";
 
 interface RecipeDetailHeaderProps {
   recipeId: string;
@@ -13,6 +14,7 @@ interface RecipeDetailHeaderProps {
   cookTimeMinutes: number;
   servings: number | null;
   isFavorite: boolean;
+  rating: number | null;
   madeCount: number;
   lastMadeAt: string | null;
 }
@@ -24,6 +26,7 @@ export function RecipeDetailHeader({
   cookTimeMinutes,
   servings,
   isFavorite,
+  rating,
   madeCount,
   lastMadeAt,
 }: RecipeDetailHeaderProps) {
@@ -44,6 +47,7 @@ export function RecipeDetailHeader({
       {description ? (
         <p className="text-sm leading-6 text-muted-foreground">{description}</p>
       ) : null}
+      <RecipeRating recipeId={recipeId} rating={rating} interactive />
       <RecipeMadeIt
         recipeId={recipeId}
         initialCount={madeCount}

@@ -7,6 +7,7 @@ import { Clock3, Heart, Plus, Search } from "lucide-react";
 import { AddRecipeSheet } from "@/components/recipes/add-recipe-sheet";
 import { DeleteRecipeButton } from "@/components/recipes/delete-recipe-button";
 import { FavoriteRecipeButton } from "@/components/recipes/favorite-recipe-button";
+import { RecipeRating } from "@/components/recipes/recipe-rating";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { RecipeListItem } from "@/lib/types/recipe";
@@ -145,6 +146,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
                           {recipe.description}
                         </p>
                       ) : null}
+                      <RecipeRating rating={recipe.rating} />
                     </div>
                     {recipe.cookTimeMinutes > 0 ? (
                       <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">

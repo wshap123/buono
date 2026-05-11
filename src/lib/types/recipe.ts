@@ -3,5 +3,6 @@ export interface RecipeListItem {
   title: string;
   description: string | null;
   isFavorite: boolean;
+  rating: number | null;
   cookTimeMinutes: number;
 }

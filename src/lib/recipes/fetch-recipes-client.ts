@@ -6,6 +6,7 @@ interface RecipeRow {
   title: string;
   description: string | null;
   is_favorite: boolean;
+  rating: number | null;
   prep_time: number | null;
   cook_time: number | null;
 }
@@ -14,7 +15,7 @@ export async function fetchRecipesClient(): Promise<RecipeListItem[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("recipes")
-    .select("id, title, description, is_favorite, prep_time, cook_time")
+    .select("id, title, description, is_favorite, rating, prep_time, cook_time")
     .order("title", { ascending: true });
 
   if (error) {
@@ -26,6 +27,7 @@ export async function fetchRecipesClient(): Promise<RecipeListItem[]> {
     title: recipe.title,
     description: recipe.description,
     isFavorite: recipe.is_favorite,
+    rating: recipe.rating,
     cookTimeMinutes: (recipe.prep_time ?? 0) + (recipe.cook_time ?? 0),
   }));
 }

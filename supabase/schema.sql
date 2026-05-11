@@ -17,8 +17,10 @@ create table public.recipes (
   shopping_list jsonb not null default '{"produce":[],"proteins":[],"dairy":[],"pantry":[],"spices":[]}'::jsonb,
   tags text[] not null default '{}'::text[],
   is_favorite boolean not null default false,
+  rating integer,
   times_made integer not null default 0,
-  created_at timestamptz not null default timezone('utc', now())
+  created_at timestamptz not null default timezone('utc', now()),
+  constraint recipes_rating_check check (rating is null or rating between 1 and 5)
 );
 
 create table public.meal_plan (
