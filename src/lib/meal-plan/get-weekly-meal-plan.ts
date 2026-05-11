@@ -15,6 +15,7 @@ interface MealPlanRecipeRow {
 }
 
 interface MealPlanRow {
+  id: string;
   date: string;
   meal_type: MealType;
   recipe: MealPlanRecipeRow | MealPlanRecipeRow[] | null;
@@ -46,6 +47,7 @@ export async function getWeeklyMealPlan(): Promise<WeeklyMealPlan> {
     .from("meal_plan")
     .select(
       `
+        id,
         date,
         meal_type,
         recipe:recipes (
@@ -65,14 +67,33 @@ export async function getWeeklyMealPlan(): Promise<WeeklyMealPlan> {
     throw new Error(error.message);
   }
 
-  const mealsByDate = new Map<string, Map<MealType, MealPlanRecipeRow | null>>();
+  const mealsByDate = new Map<
+    string,
+    Map<
+      MealType,
+      {
+        mealPlanId: string;
+        recipe: MealPlanRecipeRow | null;
+      }
+    >
+  >();
 
   for (const row of (data ?? []) as MealPlanRow[]) {
     const recipe = getRecipeFromRow(row.recipe);
     const mealsForDate =
-      mealsByDate.get(row.date) ?? new Map<MealType, MealPlanRecipeRow | null>();
+      mealsByDate.get(row.date) ??
+      new Map<
+        MealType,
+        {
+          mealPlanId: string;
+          recipe: MealPlanRecipeRow | null;
+        }
+      >();
 
-    mealsForDate.set(row.meal_type, recipe);
+    mealsForDate.set(row.meal_type, {
+      mealPlanId: row.id,
+      recipe,
+    });
     mealsByDate.set(row.date, mealsForDate);
   }
 
@@ -89,10 +110,12 @@ export async function getWeeklyMealPlan(): Promise<WeeklyMealPlan> {
         dayOfMonth: date.getDate(),
         isToday: dateKey === todayKey,
         meals: mealTypes.map((type) => {
-          const recipe = mealsForDate?.get(type) ?? null;
+          const meal = mealsForDate?.get(type) ?? null;
+          const recipe = meal?.recipe ?? null;
 
           return {
             type,
+            mealPlanId: meal?.mealPlanId ?? null,
             recipe: recipe
               ? {
                   id: recipe.id,

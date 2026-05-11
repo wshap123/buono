@@ -37,6 +37,7 @@ create table public.reminders (
   meal_plan_id uuid not null references public.meal_plan (id) on delete cascade,
   message text not null,
   remind_at timestamptz not null,
+  completed boolean not null default false,
   created_at timestamptz not null default timezone('utc', now())
 );
 
@@ -51,6 +52,7 @@ create index meal_plan_date_idx on public.meal_plan (date);
 create index meal_plan_recipe_id_idx on public.meal_plan (recipe_id);
 create index reminders_meal_plan_id_idx on public.reminders (meal_plan_id);
 create index reminders_remind_at_idx on public.reminders (remind_at);
+create index reminders_completed_idx on public.reminders (completed);
 create index recipe_notes_recipe_id_idx on public.recipe_notes (recipe_id);
 
 create table public.shopping_list_checks (

@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Clock3, Heart, Plus, Search } from "lucide-react";
 
 import { AddRecipeSheet } from "@/components/recipes/add-recipe-sheet";
 import { DeleteRecipeButton } from "@/components/recipes/delete-recipe-button";
+import { FavoriteRecipeButton } from "@/components/recipes/favorite-recipe-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import type { RecipeListItem } from "@/lib/types/recipe";
+import { cn } from "@/lib/utils";
 
 interface RecipesLibraryProps {
   recipes: RecipeListItem[];
@@ -19,11 +20,29 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
   const [query, setQuery] = useState("");
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [isAddRecipeOpen, setIsAddRecipeOpen] = useState(false);
+  const [favoriteByRecipeId, setFavoriteByRecipeId] = useState<
+    Record<string, boolean>
+  >(() => Object.fromEntries(recipes.map((recipe) => [recipe.id, recipe.isFavorite])));
+
+  useEffect(() => {
+    setFavoriteByRecipeId(
+      Object.fromEntries(recipes.map((recipe) => [recipe.id, recipe.isFavorite])),
+    );
+  }, [recipes]);
+
+  const recipesWithFavorites = useMemo(
+    () =>
+      recipes.map((recipe) => ({
+        ...recipe,
+        isFavorite: favoriteByRecipeId[recipe.id] ?? recipe.isFavorite,
+      })),
+    [favoriteByRecipeId, recipes],
+  );
 
   const filteredRecipes = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return recipes.filter((recipe) => {
+    return recipesWithFavorites.filter((recipe) => {
       if (favoritesOnly && !recipe.isFavorite) {
         return false;
       }
@@ -37,7 +56,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
         recipe.description?.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [favoritesOnly, query, recipes]);
+  }, [favoritesOnly, query, recipesWithFavorites]);
 
   return (
     <>
@@ -83,19 +102,26 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
             />
           </div>
 
-          <label className="flex items-center justify-between rounded-2xl border border-border/70 bg-card/80 px-4 py-3">
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-foreground">Favorites only</p>
-              <p className="text-sm text-muted-foreground">
-                Show recipes you have marked as favorites.
-              </p>
-            </div>
-            <Switch
-              checked={favoritesOnly}
-              onCheckedChange={setFavoritesOnly}
-              aria-label="Show favorites only"
+          <Button
+            type="button"
+            variant={favoritesOnly ? "default" : "outline"}
+            className={cn(
+              "h-11 w-full justify-center gap-2 rounded-2xl",
+              !favoritesOnly && "border-border/70 bg-card/80",
+            )}
+            aria-pressed={favoritesOnly}
+            onClick={() => setFavoritesOnly((current) => !current)}
+          >
+            <Heart
+              className={cn(
+                "size-4",
+                favoritesOnly ? "fill-current" : "text-muted-foreground",
+              )}
+              strokeWidth={favoritesOnly ? 0 : 2}
+              aria-hidden="true"
             />
-          </label>
+            Favorites
+          </Button>
         </div>
 
         {filteredRecipes.length > 0 ? (
@@ -103,38 +129,44 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
             {filteredRecipes.map((recipe) => (
               <article
                 key={recipe.id}
-                className="flex items-center gap-2 rounded-3xl border border-border/70 bg-card/90 px-4 py-4 shadow-sm transition-colors hover:border-primary/25 hover:bg-primary/5"
+                className="rounded-3xl border border-border/70 bg-card/90 px-4 py-4 shadow-sm transition-colors hover:border-primary/25 hover:bg-primary/5"
               >
-                <Link
-                  href={`/recipes/${recipe.id}`}
-                  className="flex min-w-0 flex-1 items-center justify-between gap-3"
-                >
-                <div className="min-w-0 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {recipe.title}
-                    </p>
-                    {recipe.isFavorite ? (
-                      <Heart
-                        className="size-4 shrink-0 fill-primary text-primary"
-                        aria-label="Favorite"
-                      />
+                <div className="flex items-start gap-3">
+                  <Link
+                    href={`/recipes/${recipe.id}`}
+                    className="flex min-w-0 flex-1 items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0 space-y-1">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {recipe.title}
+                      </p>
+                      {recipe.description ? (
+                        <p className="line-clamp-2 text-sm text-muted-foreground">
+                          {recipe.description}
+                        </p>
+                      ) : null}
+                    </div>
+                    {recipe.cookTimeMinutes > 0 ? (
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
+                        <Clock3 className="size-3.5" aria-hidden="true" />
+                        {recipe.cookTimeMinutes} min
+                      </span>
                     ) : null}
+                  </Link>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <FavoriteRecipeButton
+                      recipeId={recipe.id}
+                      isFavorite={recipe.isFavorite}
+                      onFavoriteChange={(isFavorite) =>
+                        setFavoriteByRecipeId((current) => ({
+                          ...current,
+                          [recipe.id]: isFavorite,
+                        }))
+                      }
+                    />
+                    <DeleteRecipeButton recipeId={recipe.id} />
                   </div>
-                  {recipe.description ? (
-                    <p className="line-clamp-2 text-sm text-muted-foreground">
-                      {recipe.description}
-                    </p>
-                  ) : null}
                 </div>
-                {recipe.cookTimeMinutes > 0 ? (
-                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-                    <Clock3 className="size-3.5" aria-hidden="true" />
-                    {recipe.cookTimeMinutes} min
-                  </span>
-                ) : null}
-                </Link>
-                <DeleteRecipeButton recipeId={recipe.id} />
               </article>
             ))}
           </section>

@@ -3,6 +3,7 @@
 import { Clock3, Users } from "lucide-react";
 
 import { DeleteRecipeButton } from "@/components/recipes/delete-recipe-button";
+import { FavoriteRecipeButton } from "@/components/recipes/favorite-recipe-button";
 
 interface RecipeDetailHeaderProps {
   recipeId: string;
@@ -10,6 +11,7 @@ interface RecipeDetailHeaderProps {
   description: string | null;
   cookTimeMinutes: number;
   servings: number | null;
+  isFavorite: boolean;
 }
 
 export function RecipeDetailHeader({
@@ -18,6 +20,7 @@ export function RecipeDetailHeader({
   description,
   cookTimeMinutes,
   servings,
+  isFavorite,
 }: RecipeDetailHeaderProps) {
   return (
     <header className="space-y-3">
@@ -25,7 +28,10 @@ export function RecipeDetailHeader({
         <p className="text-sm font-medium tracking-[0.2em] text-primary uppercase">
           Recipe
         </p>
-        <DeleteRecipeButton recipeId={recipeId} redirectToLibrary />
+        <div className="flex items-center gap-1">
+          <FavoriteRecipeButton recipeId={recipeId} isFavorite={isFavorite} />
+          <DeleteRecipeButton recipeId={recipeId} redirectToLibrary />
+        </div>
       </div>
       <h1 className="text-3xl font-semibold tracking-tight text-foreground">
         {title}

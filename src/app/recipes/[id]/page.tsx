@@ -27,7 +27,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
   const { data: recipe, error } = await supabase
     .from("recipes")
     .select(
-      "id, title, description, cook_time, prep_time, servings, ingredients, instructions",
+      "id, title, description, cook_time, prep_time, servings, ingredients, instructions, is_favorite",
     )
     .eq("id", id)
     .maybeSingle();
@@ -60,6 +60,7 @@ export default async function RecipePage({ params }: RecipePageProps) {
         description={recipe.description}
         cookTimeMinutes={cookTimeMinutes}
         servings={recipe.servings}
+        isFavorite={recipe.is_favorite}
       />
 
       <section className="space-y-5 rounded-3xl border border-border/70 bg-card/90 px-4 py-5 shadow-sm">

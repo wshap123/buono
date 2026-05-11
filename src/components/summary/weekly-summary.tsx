@@ -1,15 +1,19 @@
 import Link from "next/link";
 
+import { WeeklyReminders } from "@/components/summary/weekly-reminders";
 import { WeeklyShoppingList } from "@/components/summary/weekly-shopping-list";
 import { getWeeklyShoppingList } from "@/lib/meal-plan/compile-weekly-shopping-list";
 import { getWeeklyMealPlan } from "@/lib/meal-plan/get-weekly-meal-plan";
+import { getWeeklyReminders } from "@/lib/meal-plan/get-weekly-reminders";
 import { getShoppingListChecks } from "@/lib/meal-plan/get-shopping-list-checks";
 
 export async function WeeklySummary() {
-  const [{ weekRange, days }, { weekStart, groups }] = await Promise.all([
-    getWeeklyMealPlan(),
-    getWeeklyShoppingList(),
-  ]);
+  const [{ weekRange, days }, { weekStart, groups }, reminders] =
+    await Promise.all([
+      getWeeklyMealPlan(),
+      getWeeklyShoppingList(),
+      getWeeklyReminders(),
+    ]);
   const checkedByItemKey = await getShoppingListChecks(weekStart);
   const plannedDays = days
     .map((day) => ({
@@ -31,6 +35,11 @@ export async function WeeklySummary() {
           <p className="text-sm text-muted-foreground">{weekRange}</p>
         </div>
       </header>
+
+      <section aria-label="Reminders" className="space-y-3">
+        <h2 className="text-sm font-medium text-foreground">Reminders</h2>
+        <WeeklyReminders reminders={reminders} />
+      </section>
 
       <section aria-label="Weekly meal summary" className="space-y-3">
         <h2 className="text-sm font-medium text-foreground">This week</h2>
