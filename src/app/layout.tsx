@@ -24,13 +24,12 @@ export const metadata: Metadata = {
   title: "Buono",
   description: "Plan your week of meals with Buono.",
   applicationName: "Buono",
-  manifest: "/site.webmanifest",
   icons: {
     icon: [
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: "/icons/apple-touch-icon.png",
+    apple: "/icon-512.png",
   },
   appleWebApp: {
     capable: true,
