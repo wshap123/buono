@@ -78,11 +78,14 @@ export function parseImportedRecipe(value: unknown): ImportedRecipe {
 }
 
 export function extractJsonFromModelText(text: string) {
-  const trimmed = text.trim();
+  let trimmed = text.trim();
+
+  trimmed = trimmed.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+
   const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
 
   if (fencedMatch?.[1]) {
-    return fencedMatch[1].trim();
+    trimmed = fencedMatch[1].trim();
   }
 
   const firstBrace = trimmed.indexOf("{");
@@ -93,4 +96,8 @@ export function extractJsonFromModelText(text: string) {
   }
 
   return trimmed.slice(firstBrace, lastBrace + 1);
+}
+
+export function parseImportedRecipeFromModelText(text: string) {
+  return parseImportedRecipe(JSON.parse(extractJsonFromModelText(text)));
 }

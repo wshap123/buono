@@ -12,6 +12,6 @@ export async function getShoppingListChecks(weekStart: string) {
   }
 
   return Object.fromEntries(
-    (data ?? []).map((row) => [row.item_key, row.checked]),
+    (data ?? []).map((row) => [row.item_key, Boolean(row.checked)]),
   ) as Record<string, boolean>;
 }

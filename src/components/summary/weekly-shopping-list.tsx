@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+import { saveShoppingListCheck } from "@/lib/meal-plan/save-shopping-list-check";
 import type { WeeklyShoppingListGroup } from "@/lib/meal-plan/compile-weekly-shopping-list";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,11 @@ export function WeeklyShoppingList({
   const [pendingItemKeys, setPendingItemKeys] = useState<Set<string>>(
     new Set(),
   );
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCheckedByItemKey(initialCheckedByItemKey);
+  }, [initialCheckedByItemKey, weekStart]);
 
   async function handleToggle(itemKey: string, checked: boolean) {
     setCheckedByItemKey((current) => ({
@@ -30,26 +35,20 @@ export function WeeklyShoppingList({
       [itemKey]: checked,
     }));
     setPendingItemKeys((current) => new Set(current).add(itemKey));
+    setError(null);
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.from("shopping_list_checks").upsert(
-        {
-          week_start: weekStart,
-          item_key: itemKey,
-          checked,
-        },
-        { onConflict: "week_start,item_key" },
-      );
-
-      if (error) {
-        throw error;
-      }
-    } catch {
+      await saveShoppingListCheck(weekStart, itemKey, checked);
+    } catch (saveError) {
       setCheckedByItemKey((current) => ({
         ...current,
         [itemKey]: !checked,
       }));
+      setError(
+        saveError instanceof Error
+          ? saveError.message
+          : "Could not save this shopping list item.",
+      );
     } finally {
       setPendingItemKeys((current) => {
         const next = new Set(current);
@@ -69,6 +68,7 @@ export function WeeklyShoppingList({
 
   return (
     <div className="space-y-4">
+      {error ? <p className="text-sm text-destructive">{error}</p> : null}
       {groups.map((group) => (
         <section
           key={group.key}

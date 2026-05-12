@@ -1,15 +1,21 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 
-import { buildRecipeExtractionPrompt } from "@/lib/recipe-import/extraction-prompt";
 import {
-  extractJsonFromModelText,
-  parseImportedRecipe,
-} from "@/lib/recipe-import/parse-recipe-response";
+  buildRecipeExtractionPrompt,
+  buildUrlRecipeImportPrompt,
+} from "@/lib/recipe-import/extraction-prompt";
+import {
+  fetchRecipeUrlContent,
+  parseRecipeUrl,
+} from "@/lib/recipe-import/fetch-recipe-url-content";
+import { parseImportedRecipeFromModelText } from "@/lib/recipe-import/parse-recipe-response";
 
 const model = "claude-sonnet-4-5";
 const maxContentLength = 150_000;
-const maxImageBytes = 5 * 1024 * 1024;
+const maxMediaBytes = 5 * 1024 * 1024;
+const maxMediaFiles = 5;
+
 const supportedImageTypes = new Set([
   "image/jpeg",
   "image/png",
@@ -17,8 +23,52 @@ const supportedImageTypes = new Set([
   "image/gif",
 ]);
 
+type AnthropicImageMediaType =
+  | "image/jpeg"
+  | "image/png"
+  | "image/webp"
+  | "image/gif";
+
+type RecipeMediaInput = {
+  data: string;
+  media_type: string;
+};
+
+type RecipeContent =
+  | {
+      kind: "text";
+      content: string;
+    }
+  | {
+      kind: "media";
+      blocks: Array<
+        | {
+            type: "image";
+            source: {
+              type: "base64";
+              media_type: AnthropicImageMediaType;
+              data: string;
+            };
+          }
+        | {
+            type: "document";
+            source: {
+              type: "base64";
+              media_type: "application/pdf";
+              data: string;
+            };
+          }
+        | {
+            type: "text";
+            text: string;
+          }
+      >;
+    };
+
+type MediaContentBlock = Extract<RecipeContent, { kind: "media" }>["blocks"][number];
+
 function prepareText(text: string) {
-  return text.replace(/\s+/g, " ").trim().slice(0, maxContentLength);
+  return text.trim().slice(0, maxContentLength);
 }
 
 function estimateBase64Bytes(base64: string) {
@@ -26,30 +76,101 @@ function estimateBase64Bytes(base64: string) {
   return Math.floor((base64.length * 3) / 4) - padding;
 }
 
-async function getRecipeContent(body: {
+function buildMediaBlock(media: RecipeMediaInput) {
+  const mediaType = media.media_type.trim();
+
+  if (supportedImageTypes.has(mediaType)) {
+    return {
+      type: "image" as const,
+      source: {
+        type: "base64" as const,
+        media_type: mediaType as AnthropicImageMediaType,
+        data: media.data,
+      },
+    };
+  }
+
+  if (mediaType === "application/pdf") {
+    return {
+      type: "document" as const,
+      source: {
+        type: "base64" as const,
+        media_type: "application/pdf" as const,
+        data: media.data,
+      },
+    };
+  }
+
+  throw new Error("Only JPG, PNG, WEBP, GIF images, and PDF files are supported.");
+}
+
+function getRecipeContent(body: {
   text?: string;
+  url?: string;
   image?: string;
   media_type?: string;
-}) {
-  const text = body.text?.trim();
-  const image = body.image?.trim();
-  const mediaType = body.media_type?.trim();
+  media?: RecipeMediaInput[];
+}): RecipeContent | null {
+  const mediaItems = Array.isArray(body.media) ? body.media : [];
 
-  if (image) {
-    if (!mediaType || !supportedImageTypes.has(mediaType)) {
-      throw new Error("Only JPG, PNG, WEBP, and GIF images are supported.");
+  if (mediaItems.length > 0) {
+    if (mediaItems.length > maxMediaFiles) {
+      throw new Error("You can upload up to 5 files at once.");
     }
 
-    if (estimateBase64Bytes(image) > maxImageBytes) {
-      throw new Error("Recipe images must be 5 MB or smaller.");
+    const blocks: MediaContentBlock[] = [];
+
+    for (const media of mediaItems) {
+      const data = media.data?.trim();
+      const mediaType = media.media_type?.trim();
+
+      if (!data || !mediaType) {
+        throw new Error("Each uploaded file must include data and a media type.");
+      }
+
+      if (estimateBase64Bytes(data) > maxMediaBytes) {
+        throw new Error("Each uploaded file must be 5 MB or smaller.");
+      }
+
+      blocks.push(buildMediaBlock({ data, media_type: mediaType }));
+    }
+
+    blocks.push({
+      type: "text",
+      text: buildRecipeExtractionPrompt("uploaded recipe files"),
+    });
+
+    return {
+      kind: "media",
+      blocks,
+    };
+  }
+
+  const legacyImage = body.image?.trim();
+  const legacyMediaType = body.media_type?.trim();
+
+  if (legacyImage) {
+    if (!legacyMediaType) {
+      throw new Error("Uploaded files must include a media type.");
+    }
+
+    if (estimateBase64Bytes(legacyImage) > maxMediaBytes) {
+      throw new Error("Each uploaded file must be 5 MB or smaller.");
     }
 
     return {
-      kind: "image" as const,
-      image,
-      mediaType,
+      kind: "media",
+      blocks: [
+        buildMediaBlock({ data: legacyImage, media_type: legacyMediaType }),
+        {
+          type: "text",
+          text: buildRecipeExtractionPrompt("uploaded recipe files"),
+        },
+      ],
     };
   }
+
+  const text = body.text?.trim();
 
   if (text) {
     const content = prepareText(text);
@@ -59,7 +180,7 @@ async function getRecipeContent(body: {
     }
 
     return {
-      kind: "text" as const,
+      kind: "text",
       content,
     };
   }
@@ -71,15 +192,30 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as {
       text?: string;
+      url?: string;
       image?: string;
       media_type?: string;
+      media?: RecipeMediaInput[];
     };
-    const recipeInput = await getRecipeContent(body);
+    let recipeInput: RecipeContent | null = null;
+
+    if (body.url?.trim()) {
+      const url = parseRecipeUrl(body.url);
+      const fetchedContent = await fetchRecipeUrlContent(url);
+
+      recipeInput = {
+        kind: "text",
+        content: buildUrlRecipeImportPrompt(url, fetchedContent),
+      };
+    } else {
+      recipeInput = getRecipeContent(body);
+    }
 
     if (!recipeInput) {
       return NextResponse.json(
         {
-          error: "Pasted recipe text or a recipe image is required.",
+          error:
+            "Pasted recipe text, a recipe URL, or uploaded recipe files are required.",
         },
         { status: 400 },
       );
@@ -100,30 +236,13 @@ export async function POST(request: Request) {
       max_tokens: 4096,
       temperature: 0,
       system:
-        "You extract structured recipe data from pasted recipe text or recipe photos. Ignore all non-recipe content. Return only valid JSON with no markdown, commentary, or extra text. In shopping_list, keep the full quantity and unit in every item string.",
+        "You extract structured recipe data from pasted recipe text, recipe URLs, recipe photos, or recipe PDFs. Ignore all non-recipe content. Respond with only a valid raw JSON object. Do not include markdown, backticks, code fences, commentary, or any text before or after the JSON. In shopping_list, keep the full quantity and unit in every item string. Never include salt, pepper, olive oil, or other generic pantry staples in shopping_list.",
       messages: [
         {
           role: "user",
           content:
-            recipeInput.kind === "image"
-              ? [
-                  {
-                    type: "image",
-                    source: {
-                      type: "base64",
-                      media_type: recipeInput.mediaType as
-                        | "image/jpeg"
-                        | "image/png"
-                        | "image/webp"
-                        | "image/gif",
-                      data: recipeInput.image,
-                    },
-                  },
-                  {
-                    type: "text",
-                    text: buildRecipeExtractionPrompt("recipe photo"),
-                  },
-                ]
+            recipeInput.kind === "media"
+              ? recipeInput.blocks
               : [
                   {
                     type: "text",
@@ -147,9 +266,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const recipe = parseImportedRecipe(
-      JSON.parse(extractJsonFromModelText(text)),
-    );
+    let recipe;
+
+    try {
+      recipe = parseImportedRecipeFromModelText(text);
+    } catch (parseError) {
+      const message =
+        parseError instanceof Error
+          ? parseError.message
+          : "Claude returned recipe data in an invalid format.";
+
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
 
     return NextResponse.json({ recipe });
   } catch (error) {

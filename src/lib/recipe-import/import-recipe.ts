@@ -1,15 +1,24 @@
 import type { ImportedRecipe } from "@/lib/types/imported-recipe";
 
+interface ImportRecipeMediaInput {
+  data: string;
+  mediaType: string;
+}
+
 interface ImportRecipeInput {
   text?: string;
+  url?: string;
   image?: string;
   mediaType?: string;
+  media?: ImportRecipeMediaInput[];
 }
 
 export async function importRecipe({
   text,
+  url,
   image,
   mediaType,
+  media,
 }: ImportRecipeInput) {
   const response = await fetch("/api/import-recipe", {
     method: "POST",
@@ -18,8 +27,13 @@ export async function importRecipe({
     },
     body: JSON.stringify({
       text,
+      url,
       image,
       media_type: mediaType,
+      media: media?.map((item) => ({
+        data: item.data,
+        media_type: item.mediaType,
+      })),
     }),
   });
 
@@ -48,4 +62,17 @@ export async function fileToBase64(file: File) {
     mediaType: file.type,
     data: btoa(binary),
   };
+}
+
+export async function filesToImportMedia(files: File[]) {
+  return Promise.all(
+    files.map(async (file) => {
+      const { data, mediaType } = await fileToBase64(file);
+
+      return {
+        data,
+        mediaType,
+      };
+    }),
+  );
 }

@@ -1,4 +1,8 @@
 import { asShoppingList } from "@/lib/recipe-import/parse-recipe-response";
+import {
+  getShoppingListDedupeKey,
+  isBlockedShoppingListItem,
+} from "@/lib/recipe-import/shopping-list-blocklist";
 import { shoppingListCategories } from "@/lib/recipe-import/shopping-list";
 import { getCurrentWeekDays, toDateKey } from "@/lib/meal-plan/week";
 import { createClient } from "@/lib/supabase/server";
@@ -56,13 +60,13 @@ export function compileWeeklyShoppingList(
       for (const item of list[category.key]) {
         const label = item.trim();
 
-        if (!label) {
+        if (!label || isBlockedShoppingListItem(label)) {
           continue;
         }
 
-        const dedupeKey = label.toLowerCase();
+        const dedupeKey = getShoppingListDedupeKey(label);
 
-        if (seen.has(dedupeKey)) {
+        if (!dedupeKey || seen.has(dedupeKey)) {
           continue;
         }
 

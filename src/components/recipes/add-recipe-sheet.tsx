@@ -7,11 +7,13 @@ import {
   Camera,
   ChevronRight,
   FileText,
+  Link2,
   Loader2,
 } from "lucide-react";
 
 import { ImportedRecipePreviewCard } from "@/components/recipe-import/imported-recipe-preview-card";
 import { ImportRecipePhotoPanel } from "@/components/recipe-import/import-recipe-photo-panel";
+import { PasteRecipeLinkPanel } from "@/components/recipe-import/paste-recipe-link-panel";
 import { PasteRecipeTextPanel } from "@/components/recipe-import/paste-recipe-text-panel";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,13 +23,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { fileToBase64, importRecipe } from "@/lib/recipe-import/import-recipe";
+import { filesToImportMedia, importRecipe } from "@/lib/recipe-import/import-recipe";
 import { saveImportedRecipe } from "@/lib/recipes/save-imported-recipe";
 import type { ImportedRecipe } from "@/lib/types/imported-recipe";
 import { cn } from "@/lib/utils";
 
-type AddRecipeStep = "options" | "paste-text" | "import-photo" | "preview";
-type ImportSource = "paste-text" | "import-photo";
+type AddRecipeStep =
+  | "options"
+  | "paste-text"
+  | "paste-link"
+  | "import-photo"
+  | "preview";
+type ImportSource = "paste-text" | "paste-link" | "import-photo";
 
 const addRecipeOptions = [
   {
@@ -38,9 +45,16 @@ const addRecipeOptions = [
     step: "paste-text" as const,
   },
   {
+    id: "paste-link",
+    title: "Paste a link",
+    description: "Import a recipe from a recipe website URL.",
+    icon: Link2,
+    step: "paste-link" as const,
+  },
+  {
     id: "import-photo",
-    title: "Import from photo",
-    description: "Upload a cookbook page or recipe screenshot.",
+    title: "Import from photo or PDF",
+    description: "Upload up to 5 cookbook pages, screenshots, or PDFs.",
     icon: Camera,
     step: "import-photo" as const,
   },
@@ -56,7 +70,8 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
   const [step, setStep] = useState<AddRecipeStep>("options");
   const [importSource, setImportSource] = useState<ImportSource>("paste-text");
   const [recipeText, setRecipeText] = useState("");
-  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [recipeUrl, setRecipeUrl] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [importedRecipe, setImportedRecipe] = useState<ImportedRecipe | null>(
     null,
   );
@@ -69,7 +84,8 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
       setStep("options");
       setImportSource("paste-text");
       setRecipeText("");
-      setSelectedPhoto(null);
+      setRecipeUrl("");
+      setSelectedFiles([]);
       setImportedRecipe(null);
       setError(null);
       setIsImporting(false);
@@ -104,9 +120,11 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
     }
   }
 
-  async function handleImportPhoto() {
-    if (!selectedPhoto) {
-      setError("Choose a recipe photo to continue.");
+  async function handleImportLink() {
+    const trimmedUrl = recipeUrl.trim();
+
+    if (!trimmedUrl) {
+      setError("Paste a recipe URL to continue.");
       return;
     }
 
@@ -114,8 +132,33 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
     setError(null);
 
     try {
-      const { data, mediaType } = await fileToBase64(selectedPhoto);
-      const recipe = await importRecipe({ image: data, mediaType });
+      const recipe = await importRecipe({ url: trimmedUrl });
+      setImportSource("paste-link");
+      setImportedRecipe(recipe);
+      setStep("preview");
+    } catch (importError) {
+      setError(
+        importError instanceof Error
+          ? importError.message
+          : "Could not import that recipe.",
+      );
+    } finally {
+      setIsImporting(false);
+    }
+  }
+
+  async function handleImportPhoto() {
+    if (selectedFiles.length === 0) {
+      setError("Choose at least one recipe photo or PDF to continue.");
+      return;
+    }
+
+    setIsImporting(true);
+    setError(null);
+
+    try {
+      const media = await filesToImportMedia(selectedFiles);
+      const recipe = await importRecipe({ media });
       setImportSource("import-photo");
       setImportedRecipe(recipe);
       setStep("preview");
@@ -141,7 +184,7 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
     try {
       await saveImportedRecipe({
         recipe: importedRecipe,
-        sourceUrl: null,
+        sourceUrl: importSource === "paste-link" ? recipeUrl.trim() : null,
       });
 
       onOpenChange(false);
@@ -173,8 +216,10 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
       ? "Review recipe"
       : step === "paste-text"
         ? "Paste recipe text"
+        : step === "paste-link"
+          ? "Paste a link"
         : step === "import-photo"
-          ? "Import from photo"
+          ? "Import from photo or PDF"
           : "Add recipe";
 
   return (
@@ -300,10 +345,20 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
               />
             ) : null}
 
+            {step === "paste-link" ? (
+              <PasteRecipeLinkPanel
+                recipeUrl={recipeUrl}
+                onRecipeUrlChange={setRecipeUrl}
+                isImporting={isImporting}
+                onImport={handleImportLink}
+                inputId="library-recipe-url"
+              />
+            ) : null}
+
             {step === "import-photo" ? (
               <ImportRecipePhotoPanel
-                selectedFile={selectedPhoto}
-                onSelectedFileChange={setSelectedPhoto}
+                selectedFiles={selectedFiles}
+                onSelectedFilesChange={setSelectedFiles}
                 isImporting={isImporting}
                 onImport={handleImportPhoto}
                 inputId="library-recipe-photo"

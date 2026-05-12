@@ -50,9 +50,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} min-h-dvh antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="min-h-dvh bg-background text-foreground">
         <AppShell>{children}</AppShell>
       </body>
     </html>

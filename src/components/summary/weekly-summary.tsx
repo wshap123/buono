@@ -65,6 +65,7 @@ export async function WeeklySummary() {
           This Week&apos;s Shopping List
         </h2>
         <WeeklyShoppingList
+          key={weekStart}
           weekStart={weekStart}
           groups={groups}
           initialCheckedByItemKey={checkedByItemKey}
