@@ -3,50 +3,44 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog } from "@base-ui/react/dialog";
-import { Bell, Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { saveMealReminder } from "@/lib/meal-plan/save-meal-reminder";
+import { removeMealFromPlan } from "@/lib/meal-plan/remove-meal-from-plan";
 import { cn } from "@/lib/utils";
 
-interface MealReminderButtonProps {
+interface RemoveMealButtonProps {
   mealPlanId: string;
-  mealDate: string;
+  recipeName: string;
   className?: string;
 }
 
-export function MealReminderButton({
+export function RemoveMealButton({
   mealPlanId,
-  mealDate,
+  recipeName,
   className,
-}: MealReminderButtonProps) {
+}: RemoveMealButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSave() {
-    setIsSaving(true);
+  async function handleConfirm() {
+    setIsRemoving(true);
     setError(null);
 
     try {
-      await saveMealReminder({
-        mealPlanId,
-        message,
-        mealDate,
-      });
-      setMessage("");
+      await removeMealFromPlan(mealPlanId);
       setOpen(false);
       router.refresh();
-    } catch (saveError) {
+    } catch (removeError) {
       setError(
-        saveError instanceof Error
-          ? saveError.message
-          : "Could not save this reminder.",
+        removeError instanceof Error
+          ? removeError.message
+          : "Could not remove this meal from your plan.",
       );
     } finally {
-      setIsSaving(false);
+      setIsRemoving(false);
     }
   }
 
@@ -57,10 +51,10 @@ export function MealReminderButton({
         variant="ghost"
         size="icon-sm"
         className={cn(
-          "shrink-0 rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary",
+          "shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
           className,
         )}
-        aria-label="Add reminder"
+        aria-label={`Remove ${recipeName} from plan`}
         onClick={(event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -68,7 +62,7 @@ export function MealReminderButton({
           setOpen(true);
         }}
       >
-        <Bell className="size-4" aria-hidden="true" />
+        <Trash2 className="size-4" aria-hidden="true" />
       </Button>
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -78,20 +72,13 @@ export function MealReminderButton({
             <div className="space-y-4">
               <div className="space-y-2">
                 <Dialog.Title className="text-base font-semibold text-foreground">
-                  Add reminder
+                  Remove from plan?
                 </Dialog.Title>
                 <Dialog.Description className="text-sm leading-6 text-muted-foreground">
-                  Add a prep or defrost note for this meal.
+                  {recipeName} will be removed from this day. The recipe stays in
+                  your library.
                 </Dialog.Description>
               </div>
-
-              <textarea
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                disabled={isSaving}
-                placeholder="Take chicken out of freezer tonight"
-                className="min-h-28 w-full rounded-md border border-input bg-background/80 px-4 py-3 text-sm leading-6 transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
-              />
 
               {error ? (
                 <p className="text-sm text-destructive">{error}</p>
@@ -103,26 +90,27 @@ export function MealReminderButton({
                   variant="ghost"
                   className="rounded-md"
                   onClick={() => setOpen(false)}
-                  disabled={isSaving}
+                  disabled={isRemoving}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="button"
+                  variant="destructive"
                   className="rounded-md"
-                  onClick={handleSave}
-                  disabled={isSaving || !message.trim()}
+                  onClick={handleConfirm}
+                  disabled={isRemoving}
                 >
-                  {isSaving ? (
+                  {isRemoving ? (
                     <>
                       <Loader2
                         className="size-4 animate-spin"
                         aria-hidden="true"
                       />
-                      Saving
+                      Removing
                     </>
                   ) : (
-                    "Save reminder"
+                    "Remove"
                   )}
                 </Button>
               </div>

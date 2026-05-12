@@ -79,9 +79,9 @@ export function RecipeNotesSection({
   }, [note, noteId, recipeId, savedNote]);
 
   return (
-    <section className="space-y-2 rounded-3xl border border-border/70 bg-card/90 px-4 py-5 shadow-sm">
+    <section className="editorial-card space-y-2 px-5 py-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-medium text-foreground">My Notes</h2>
+        <h2 className="editorial-section-label">My Notes</h2>
         <span
           className={cn(
             "text-xs text-muted-foreground transition-opacity",
@@ -97,7 +97,7 @@ export function RecipeNotesSection({
         value={note}
         onChange={(event) => setNote(event.target.value)}
         placeholder="Substitutions, how it turned out, tips for next time..."
-        className="min-h-32 w-full rounded-2xl border border-input bg-background/80 px-4 py-3 text-sm leading-6 transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="min-h-32 w-full rounded-md border border-input bg-background/80 px-4 py-3 text-sm leading-6 transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
       />
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </section>

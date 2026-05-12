@@ -14,14 +14,14 @@ export function DayPlanCard({ day }: DayPlanCardProps) {
     <Card
       size="sm"
       className={cn(
-        "rounded-3xl border-border/70 bg-card/90 shadow-sm backdrop-blur-sm",
-        day.isToday && "border-primary/30 ring-1 ring-primary/15",
+        "editorial-card",
+        day.isToday && "border-primary/35 ring-1 ring-primary/10",
       )}
     >
       <CardHeader className="pb-0">
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <CardTitle className="text-lg font-semibold tracking-tight">
+          <div className="space-y-1.5">
+            <CardTitle className="text-2xl font-bold tracking-tight">
               {day.weekday}
             </CardTitle>
             <p className="text-sm text-muted-foreground">

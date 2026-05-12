@@ -73,9 +73,9 @@ export function RecipeTagsSection({
   }
 
   return (
-    <section className="space-y-3 rounded-3xl border border-border/70 bg-card/90 px-4 py-5 shadow-sm">
+    <section className="editorial-card space-y-3 px-5 py-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-medium text-foreground">Tags</h2>
+        <h2 className="editorial-section-label">Tags</h2>
         {isSaving ? (
           <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
             <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
@@ -123,12 +123,12 @@ export function RecipeTagsSection({
           }}
           disabled={isSaving}
           placeholder="Add a tag"
-          className="h-11 flex-1 rounded-2xl bg-background/80 px-4 text-base"
+          className="h-11 flex-1 rounded-md bg-background/80 px-4 text-base"
         />
         <Button
           type="button"
           size="icon"
-          className="size-11 shrink-0 rounded-2xl"
+          className="size-11 shrink-0 rounded-md"
           aria-label="Add tag"
           disabled={isSaving || !draftTag.trim()}
           onClick={() => void handleAddTag()}

@@ -33,17 +33,13 @@ export function RecipeDetailHeader({
   return (
     <header className="space-y-3">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium tracking-[0.2em] text-primary uppercase">
-          Recipe
-        </p>
+        <p className="editorial-eyebrow">Recipe</p>
         <div className="flex items-center gap-1">
           <FavoriteRecipeButton recipeId={recipeId} isFavorite={isFavorite} />
           <DeleteRecipeButton recipeId={recipeId} redirectToLibrary />
         </div>
       </div>
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-        {title}
-      </h1>
+      <h1 className="editorial-page-title">{title}</h1>
       {description ? (
         <p className="text-sm leading-6 text-muted-foreground">{description}</p>
       ) : null}

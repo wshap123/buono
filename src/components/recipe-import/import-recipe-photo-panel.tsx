@@ -37,11 +37,11 @@ export function ImportRecipePhotoPanel({
           onClick={() => inputRef.current?.click()}
           disabled={isImporting}
           className={cn(
-            "flex w-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/80 bg-background/80 px-4 py-8 text-center transition-colors",
+            "flex w-full flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border/80 bg-background/80 px-4 py-8 text-center transition-colors",
             "hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
           )}
         >
-          <span className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <span className="flex size-12 items-center justify-center rounded-md bg-primary/10 text-primary">
             <ImageUp className="size-5" aria-hidden="true" />
           </span>
           <span className="space-y-1">
@@ -68,7 +68,7 @@ export function ImportRecipePhotoPanel({
 
       <Button
         type="button"
-        className="h-11 w-full rounded-2xl"
+        className="h-11 w-full rounded-md"
         onClick={onImport}
         disabled={isImporting || !selectedFile}
       >

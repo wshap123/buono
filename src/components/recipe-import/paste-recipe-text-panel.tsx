@@ -34,13 +34,13 @@ export function PasteRecipeTextPanel({
           onChange={(event) => onRecipeTextChange(event.target.value)}
           disabled={isImporting}
           placeholder="Paste the full recipe text from a website, app, or cookbook."
-          className="min-h-56 w-full rounded-2xl border border-input bg-background/80 px-4 py-3 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="min-h-56 w-full rounded-md border border-input bg-background/80 px-4 py-3 text-base transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
 
       <Button
         type="button"
-        className="h-11 w-full rounded-2xl"
+        className="h-11 w-full rounded-md"
         onClick={onImport}
         disabled={isImporting || !recipeText.trim()}
       >

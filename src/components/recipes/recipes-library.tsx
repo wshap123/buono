@@ -97,13 +97,9 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
       <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-4 pt-6 sm:px-6">
         <header className="flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <p className="text-sm font-medium tracking-[0.2em] text-primary uppercase">
-              Buono
-            </p>
-            <div className="space-y-1">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                Recipes
-              </h1>
+            <p className="editorial-eyebrow">Buono</p>
+            <div className="space-y-1.5">
+              <h1 className="editorial-page-title">Recipes</h1>
               <p className="text-sm text-muted-foreground">
                 {recipes.length} saved {recipes.length === 1 ? "recipe" : "recipes"}
               </p>
@@ -113,7 +109,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
           <Button
             type="button"
             size="icon"
-            className="size-11 shrink-0 rounded-2xl"
+            className="size-11 shrink-0 rounded-md"
             aria-label="Add recipe"
             onClick={() => setIsAddRecipeOpen(true)}
           >
@@ -132,7 +128,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search recipes"
-              className="h-11 rounded-2xl bg-background/80 pr-4 pl-11 text-base"
+              className="h-11 rounded-md bg-background/80 pr-4 pl-11 text-base"
             />
           </div>
 
@@ -146,7 +142,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
             type="button"
             variant={favoritesOnly ? "default" : "outline"}
             className={cn(
-              "h-11 w-full justify-center gap-2 rounded-2xl",
+              "h-11 w-full justify-center gap-2 rounded-md",
               !favoritesOnly && "border-border/70 bg-card/80",
             )}
             aria-pressed={favoritesOnly}
@@ -165,11 +161,11 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
         </div>
 
         {filteredRecipes.length > 0 ? (
-          <section aria-label="Recipe list" className="space-y-3">
+          <section aria-label="Recipe list" className="space-y-4">
             {filteredRecipes.map((recipe) => (
               <article
                 key={recipe.id}
-                className="rounded-3xl border border-border/70 bg-card/90 px-4 py-4 shadow-sm transition-colors hover:border-primary/25 hover:bg-primary/5"
+                className="editorial-card px-5 py-5 transition-colors hover:border-primary/25 hover:bg-primary/[0.03]"
               >
                 <div className="flex items-start gap-3">
                   <Link
@@ -177,7 +173,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
                     className="flex min-w-0 flex-1 items-center justify-between gap-3"
                   >
                     <div className="min-w-0 space-y-1">
-                      <p className="truncate text-sm font-medium text-foreground">
+                      <p className="truncate font-heading text-lg font-semibold text-foreground">
                         {recipe.title}
                       </p>
                       {recipe.description ? (
@@ -212,7 +208,7 @@ export function RecipesLibrary({ recipes }: RecipesLibraryProps) {
             ))}
           </section>
         ) : (
-          <p className="rounded-3xl border border-dashed border-border/80 bg-card/80 px-4 py-5 text-sm leading-6 text-muted-foreground">
+          <p className="editorial-muted-surface px-5 py-6 text-sm leading-6 text-muted-foreground">
             {recipes.length === 0
               ? "No recipes saved yet. Tap the plus button to add your first recipe."
               : "No recipes match your search, tags, or favorites filter."}

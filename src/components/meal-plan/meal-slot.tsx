@@ -6,6 +6,7 @@ import { Clock3, Plus } from "lucide-react";
 
 import { AddMealSheet } from "@/components/meal-plan/add-meal-sheet";
 import { MealReminderButton } from "@/components/meal-plan/meal-reminder-button";
+import { RemoveMealButton } from "@/components/meal-plan/remove-meal-button";
 import { Button } from "@/components/ui/button";
 import type { MealSlot as MealSlotType } from "@/lib/types/meal-plan";
 import { cn } from "@/lib/utils";
@@ -25,12 +26,12 @@ export function MealSlot({ slot, date, weekday }: MealSlotProps) {
         <Link
           href={`/recipes/${slot.recipe.id}`}
           className={cn(
-            "group flex min-w-0 flex-1 items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card px-4 py-3.5 text-left shadow-sm transition-colors",
+            "group editorial-card flex min-w-0 flex-1 items-center justify-between gap-3 px-4 py-4 text-left transition-colors",
             "hover:border-primary/25 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
           )}
         >
           <div className="min-w-0 space-y-1">
-            <p className="truncate text-sm font-medium text-foreground">
+            <p className="truncate font-heading text-base font-semibold text-foreground">
               {slot.recipe.name}
             </p>
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -43,11 +44,18 @@ export function MealSlot({ slot, date, weekday }: MealSlotProps) {
           </span>
         </Link>
         {slot.mealPlanId ? (
-          <MealReminderButton
-            mealPlanId={slot.mealPlanId}
-            mealDate={date}
-            className="self-center"
-          />
+          <>
+            <MealReminderButton
+              mealPlanId={slot.mealPlanId}
+              mealDate={date}
+              className="self-center"
+            />
+            <RemoveMealButton
+              mealPlanId={slot.mealPlanId}
+              recipeName={slot.recipe.name}
+              className="self-center"
+            />
+          </>
         ) : null}
       </div>
     );
@@ -58,7 +66,7 @@ export function MealSlot({ slot, date, weekday }: MealSlotProps) {
       <Button
         type="button"
         variant="outline"
-        className="h-auto min-h-14 w-full justify-between rounded-2xl border-dashed bg-background/70 px-4 py-3.5 text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-foreground"
+        className="h-auto min-h-14 w-full justify-between rounded-md border-dashed bg-background/70 px-4 py-3.5 text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-foreground"
         aria-label="Add dinner"
         onClick={() => setIsAddMealOpen(true)}
       >

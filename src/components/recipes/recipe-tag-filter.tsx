@@ -65,7 +65,7 @@ export function RecipeTagFilter({
         type="button"
         variant="outline"
         className={cn(
-          "h-11 w-full justify-between rounded-2xl border-border/70 bg-card/80 px-4 text-base font-normal",
+          "h-11 w-full justify-between rounded-md border-border/70 bg-card/80 px-4 text-base font-normal",
           selectedTags.length > 0 && "border-primary/30 bg-primary/5 text-foreground",
         )}
         aria-expanded={open}
@@ -86,7 +86,7 @@ export function RecipeTagFilter({
       </Button>
 
       {open ? (
-        <div className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-20 rounded-2xl border border-border/70 bg-card p-2 shadow-lg">
+        <div className="absolute top-[calc(100%+0.5rem)] right-0 left-0 z-20 rounded-md border border-border/70 bg-card p-2 shadow-lg">
           {availableTags.length > 0 ? (
             <ul className="max-h-56 space-y-1 overflow-y-auto" role="listbox">
               {availableTags.map((tag) => {

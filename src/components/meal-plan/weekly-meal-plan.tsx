@@ -7,17 +7,13 @@ export async function WeeklyMealPlan() {
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-6 px-4 pb-10 pt-6 sm:px-6">
       <header className="space-y-2">
-        <p className="text-sm font-medium tracking-[0.2em] text-primary uppercase">
-          Buono
-        </p>
+        <p className="editorial-eyebrow">Buono</p>
         <div className="flex items-end justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              {weekLabel}
-            </h1>
+          <div className="space-y-1.5">
+            <h1 className="editorial-page-title">{weekLabel}</h1>
             <p className="text-sm text-muted-foreground">{weekRange}</p>
           </div>
-          <p className="rounded-full border border-border/80 bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+          <p className="rounded-sm border border-border/80 bg-card px-3 py-1 text-[0.65rem] font-medium tracking-[0.14em] text-muted-foreground uppercase">
             7 days
           </p>
         </div>

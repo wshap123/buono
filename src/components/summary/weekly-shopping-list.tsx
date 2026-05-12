@@ -61,7 +61,7 @@ export function WeeklyShoppingList({
 
   if (groups.length === 0) {
     return (
-      <p className="rounded-3xl border border-dashed border-border/80 bg-card/80 px-4 py-5 text-sm leading-6 text-muted-foreground">
+      <p className="editorial-muted-surface px-5 py-6 text-sm leading-6 text-muted-foreground">
         No shopping list items for this week&apos;s plan yet.
       </p>
     );
@@ -73,9 +73,9 @@ export function WeeklyShoppingList({
         <section
           key={group.key}
           aria-label={group.label}
-          className="rounded-3xl border border-border/70 bg-card/90 px-4 py-4 shadow-sm"
+          className="editorial-card px-5 py-5"
         >
-          <h3 className="text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase">
+          <h3 className="editorial-section-label text-muted-foreground">
             {group.label}
           </h3>
           <ul className="mt-3 space-y-2">
@@ -87,7 +87,7 @@ export function WeeklyShoppingList({
                 <li key={item.itemKey}>
                   <label
                     className={cn(
-                      "flex items-start gap-3 rounded-2xl bg-background/80 px-3 py-2 text-sm transition-colors",
+                      "flex items-start gap-3 rounded-md bg-background/80 px-3 py-2 text-sm transition-colors",
                       checked && "text-muted-foreground",
                       isPending && "opacity-70",
                     )}

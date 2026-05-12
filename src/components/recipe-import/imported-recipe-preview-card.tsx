@@ -15,9 +15,9 @@ export function ImportedRecipePreviewCard({
   recipe,
 }: ImportedRecipePreviewCardProps) {
   return (
-    <Card className="rounded-3xl border-border/70 bg-background/80 py-0 shadow-sm">
+    <Card className="border-border/70 bg-background/80 py-0 shadow-none">
       <CardHeader className="gap-3 border-b border-border/60">
-        <CardTitle className="text-lg font-semibold tracking-tight">
+        <CardTitle className="text-xl font-bold tracking-tight">
           {recipe.title}
         </CardTitle>
         {recipe.description ? (
@@ -49,7 +49,7 @@ export function ImportedRecipePreviewCard({
               {recipe.ingredients.map((ingredient) => (
                 <li
                   key={ingredient}
-                  className="rounded-2xl bg-card px-3 py-2"
+                  className="rounded-md bg-card px-3 py-2"
                 >
                   {ingredient}
                 </li>
@@ -65,7 +65,7 @@ export function ImportedRecipePreviewCard({
               {recipe.instructions.map((instruction, index) => (
                 <li
                   key={`${index}-${instruction}`}
-                  className="rounded-2xl bg-card px-3 py-2"
+                  className="rounded-md bg-card px-3 py-2"
                 >
                   <span className="mr-2 font-medium text-primary">
                     {index + 1}.

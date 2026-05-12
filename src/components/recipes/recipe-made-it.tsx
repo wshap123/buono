@@ -57,10 +57,10 @@ export function RecipeMadeIt({
   }
 
   return (
-    <div className="space-y-3 rounded-3xl border border-border/70 bg-card/90 px-4 py-4 shadow-sm">
+    <div className="editorial-card space-y-3 px-5 py-5">
       <Button
         type="button"
-        className="h-11 w-full rounded-2xl"
+        className="h-11 w-full rounded-md"
         onClick={handleLogMade}
         disabled={isLogging}
       >

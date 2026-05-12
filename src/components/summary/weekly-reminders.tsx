@@ -38,7 +38,7 @@ export function WeeklyReminders({ reminders }: WeeklyRemindersProps) {
 
   if (reminders.length === 0) {
     return (
-      <p className="rounded-3xl border border-dashed border-border/80 bg-card/80 px-4 py-5 text-sm leading-6 text-muted-foreground">
+      <p className="editorial-muted-surface px-5 py-6 text-sm leading-6 text-muted-foreground">
         No reminders for this week yet.
       </p>
     );
@@ -53,7 +53,7 @@ export function WeeklyReminders({ reminders }: WeeklyRemindersProps) {
           return (
             <li
               key={reminder.id}
-              className="flex items-start gap-3 rounded-3xl border border-border/70 bg-card/90 px-4 py-3 shadow-sm"
+              className="editorial-card flex items-start gap-3 px-5 py-4"
             >
               <div className="min-w-0 flex-1 space-y-1">
                 <p className="text-sm text-foreground">{reminder.message}</p>

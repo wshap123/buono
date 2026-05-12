@@ -231,7 +231,7 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
             <div className="shrink-0 border-t border-border/70 bg-card px-5 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
               <Button
                 type="button"
-                className="h-11 w-full rounded-2xl"
+                className="h-11 w-full rounded-md"
                 onClick={handleSave}
                 disabled={isSaving}
               >
@@ -261,7 +261,7 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
                       key={option.id}
                       type="button"
                       className={cn(
-                        "flex w-full items-center gap-4 rounded-2xl border border-border/70 bg-background/80 px-4 py-4 text-left transition-colors",
+                        "flex w-full items-center gap-4 rounded-md border border-border/70 bg-background/80 px-4 py-4 text-left transition-colors",
                         "hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                       )}
                       onClick={() => {
@@ -269,7 +269,7 @@ export function AddRecipeSheet({ open, onOpenChange }: AddRecipeSheetProps) {
                         setStep(option.step);
                       }}
                     >
-                      <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                         <Icon className="size-5" aria-hidden="true" />
                       </span>
                       <span className="min-w-0 flex-1 space-y-1">

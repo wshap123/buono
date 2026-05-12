@@ -62,7 +62,7 @@ export function ChooseRecipeLibraryPanel({
           onChange={(event) => onQueryChange(event.target.value)}
           placeholder="Search recipes"
           disabled={isAssigning}
-          className="h-11 rounded-2xl bg-background/80 pr-4 pl-11 text-base"
+          className="h-11 rounded-md bg-background/80 pr-4 pl-11 text-base"
         />
       </div>
 
@@ -76,7 +76,7 @@ export function ChooseRecipeLibraryPanel({
                 <button
                   type="button"
                   className={cn(
-                    "flex w-full items-center justify-between gap-3 rounded-2xl border border-border/70 bg-background/80 px-4 py-3 text-left transition-colors",
+                    "flex w-full items-center justify-between gap-3 rounded-md border border-border/70 bg-background/80 px-4 py-3 text-left transition-colors",
                     "hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                     isSelected && "border-primary/30 bg-primary/5",
                   )}
@@ -118,7 +118,7 @@ export function ChooseRecipeLibraryPanel({
           })}
         </ul>
       ) : (
-        <p className="rounded-3xl border border-dashed border-border/80 bg-card/80 px-4 py-5 text-sm leading-6 text-muted-foreground">
+        <p className="rounded-lg border border-dashed border-border/80 bg-card/80 px-4 py-5 text-sm leading-6 text-muted-foreground">
           {recipes.length === 0
             ? "No recipes saved yet. Add recipes from the Recipes tab first."
             : "No recipes match your search."}

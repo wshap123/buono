@@ -73,13 +73,13 @@ export default async function RecipePage({ params }: RecipePageProps) {
         lastMadeAt={madeLog.lastMadeAt}
       />
 
-      <section className="space-y-5 rounded-3xl border border-border/70 bg-card/90 px-4 py-5 shadow-sm">
+      <section className="editorial-card space-y-6 px-5 py-6">
         {ingredients.length > 0 ? (
           <div className="space-y-2">
-            <h2 className="text-sm font-medium text-foreground">Ingredients</h2>
+            <h2 className="editorial-section-label">Ingredients</h2>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {ingredients.map((ingredient) => (
-                <li key={ingredient} className="rounded-2xl bg-background/80 px-3 py-2">
+                <li key={ingredient} className="rounded-md bg-background/80 px-3 py-2">
                   {ingredient}
                 </li>
               ))}
@@ -89,12 +89,12 @@ export default async function RecipePage({ params }: RecipePageProps) {
 
         {instructions.length > 0 ? (
           <div className="space-y-2">
-            <h2 className="text-sm font-medium text-foreground">Instructions</h2>
+            <h2 className="editorial-section-label">Instructions</h2>
             <ol className="space-y-2 text-sm text-muted-foreground">
               {instructions.map((instruction, index) => (
                 <li
                   key={`${index}-${instruction}`}
-                  className="rounded-2xl bg-background/80 px-3 py-2"
+                  className="rounded-md bg-background/80 px-3 py-2"
                 >
                   <span className="mr-2 font-medium text-primary">
                     {index + 1}.

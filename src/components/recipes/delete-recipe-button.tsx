@@ -73,7 +73,7 @@ export function DeleteRecipeButton({
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
           <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/20 supports-backdrop-filter:backdrop-blur-xs" />
-          <Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-[min(100%-2rem,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border/70 bg-card p-5 shadow-2xl">
+          <Dialog.Popup className="fixed top-1/2 left-1/2 z-50 w-[min(100%-2rem,24rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border/70 bg-card p-5 shadow-2xl">
             <div className="space-y-4">
               <div className="space-y-2">
                 <Dialog.Title className="text-base font-semibold text-foreground">
@@ -92,7 +92,7 @@ export function DeleteRecipeButton({
                 <Button
                   type="button"
                   variant="ghost"
-                  className="rounded-2xl"
+                  className="rounded-md"
                   onClick={() => setOpen(false)}
                   disabled={isDeleting}
                 >
@@ -101,7 +101,7 @@ export function DeleteRecipeButton({
                 <Button
                   type="button"
                   variant="destructive"
-                  className="rounded-2xl"
+                  className="rounded-md"
                   onClick={handleConfirm}
                   disabled={isDeleting}
                 >
